@@ -136,12 +136,12 @@ color:#ffd447;
 </div>
 
 <div class="card">
-<h3>Mist</h3>
+<h3>Pump</h3>
 <div id="pump1" class="value">--</div>
 </div>
 
 <div class="card">
-<h3>Pump</h3>
+<h3>Mist</h3>
 <div id="pump2" class="value">--</div>
 </div>
 
@@ -180,7 +180,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// EXACT SAME PATH as ESP32 code
 const ref = doc(db, "AIR POLLUTION", "ECOGUARDIAN");
 
 if (Notification.permission !== "granted") {
@@ -209,13 +208,18 @@ onSnapshot(ref, (snapshot) => {
   document.getElementById("zone").innerText = d.Zone ?? "--";
   document.getElementById("temp").innerText = (d.Temperature ?? "--") + " °C";
   document.getElementById("humidity").innerText = (d.Humidity ?? "--") + " %";
-  document.getElementById("gases").innerText = d.Gases ?? "--";         // now MQ135
-  document.getElementById("lpg").innerText = d.LPG ?? "--";             // MQ6
-  document.getElementById("pollutants").innerText = d.Pollutants ?? "--"; // now MQ2
+  document.getElementById("gases").innerText = d.Gases ?? "--";
+  document.getElementById("lpg").innerText = d.LPG ?? "--";
+  document.getElementById("pollutants").innerText = d.Pollutants ?? "--";
   document.getElementById("fan").innerText = d.Fan ? "ON" : "OFF";
   document.getElementById("buzzer").innerText = d.Buzzer ? "ON" : "OFF";
-  document.getElementById("pump1").innerText = d.Pump1 ? "ON" : "OFF";
-  document.getElementById("pump2").innerText = d.Pump2 ? "ON" : "OFF";
+
+  // Interchanged display:
+  // Pump = gases high = Pump2
+  // Mist = pollutants high = Pump1
+  document.getElementById("pump1").innerText = d.Pump2 ? "ON" : "OFF";
+  document.getElementById("pump2").innerText = d.Pump1 ? "ON" : "OFF";
+
   document.getElementById("millis").innerText = d.Millis ?? "--";
 
   // Alerts
