@@ -111,7 +111,7 @@ color:#ffd447;
 </div>
 
 <div class="card">
-<h3>Pollution</h3>
+<h3>Gases</h3>
 <div id="gases" class="value">--</div>
 </div>
 
@@ -121,7 +121,7 @@ color:#ffd447;
 </div>
 
 <div class="card">
-<h3>Gases</h3>
+<h3>Pollutants</h3>
 <div id="pollutants" class="value">--</div>
 </div>
 
@@ -183,83 +183,82 @@ const db = getFirestore(app);
 // EXACT SAME PATH as ESP32 code
 const ref = doc(db, "AIR POLLUTION", "ECOGUARDIAN");
 
-
 if (Notification.permission !== "granted") {
-Notification.requestPermission();
+  Notification.requestPermission();
 }
 
 function notify(msg){
-if(Notification.permission === "granted"){
-new Notification(msg);
-}
+  if(Notification.permission === "granted"){
+    new Notification(msg);
+  }
 }
 
 onSnapshot(ref, (snapshot) => {
 
-if (!snapshot.exists()) {
-console.log("Document not found");
-document.getElementById("alerts").innerHTML =
-`<div class="alert bad">❌ Firestore document not found</div>`;
-return;
-}
+  if (!snapshot.exists()) {
+    console.log("Document not found");
+    document.getElementById("alerts").innerHTML =
+    `<div class="alert bad">❌ Firestore document not found</div>`;
+    return;
+  }
 
-let d = snapshot.data();
-console.log("Firestore Data:", d);
+  let d = snapshot.data();
+  console.log("Firestore Data:", d);
 
-// Show data
-document.getElementById("zone").innerText = d.Zone ?? "--";
-document.getElementById("temp").innerText = (d.Temperature ?? "--") + " °C";
-document.getElementById("humidity").innerText = (d.Humidity ?? "--") + " %";
-document.getElementById("gases").innerText = d.Gases ?? "--";
-document.getElementById("lpg").innerText = d.LPG ?? "--";
-document.getElementById("pollutants").innerText = d.Pollutants ?? "--";
-document.getElementById("fan").innerText = d.Fan ? "ON" : "OFF";
-document.getElementById("buzzer").innerText = d.Buzzer ? "ON" : "OFF";
-document.getElementById("pump1").innerText = d.Pump1 ? "ON" : "OFF";
-document.getElementById("pump2").innerText = d.Pump2 ? "ON" : "OFF";
-document.getElementById("millis").innerText = d.Millis ?? "--";
+  // Show data
+  document.getElementById("zone").innerText = d.Zone ?? "--";
+  document.getElementById("temp").innerText = (d.Temperature ?? "--") + " °C";
+  document.getElementById("humidity").innerText = (d.Humidity ?? "--") + " %";
+  document.getElementById("gases").innerText = d.Gases ?? "--";         // now MQ135
+  document.getElementById("lpg").innerText = d.LPG ?? "--";             // MQ6
+  document.getElementById("pollutants").innerText = d.Pollutants ?? "--"; // now MQ2
+  document.getElementById("fan").innerText = d.Fan ? "ON" : "OFF";
+  document.getElementById("buzzer").innerText = d.Buzzer ? "ON" : "OFF";
+  document.getElementById("pump1").innerText = d.Pump1 ? "ON" : "OFF";
+  document.getElementById("pump2").innerText = d.Pump2 ? "ON" : "OFF";
+  document.getElementById("millis").innerText = d.Millis ?? "--";
 
-// Alerts
-let alerts = "";
+  // Alerts
+  let alerts = "";
 
-if (d.Zone === "RED") {
-alerts += `<div class="alert bad">⚠ Air quality is in RED zone</div>`;
-notify("Warning: Air quality is in RED zone");
-}
-else if (d.Zone === "YELLOW") {
-alerts += `<div class="alert warn">⚠ Air quality is in YELLOW zone</div>`;
-notify("Warning: Air quality is in YELLOW zone");
-}
-else {
-alerts += `<div class="alert good">✅ Air quality is normal</div>`;
-}
+  if (d.Zone === "RED") {
+    alerts += `<div class="alert bad">⚠ Air quality is in RED zone</div>`;
+    notify("Warning: Air quality is in RED zone");
+  }
+  else if (d.Zone === "YELLOW") {
+    alerts += `<div class="alert warn">⚠ Air quality is in YELLOW zone</div>`;
+    notify("Warning: Air quality is in YELLOW zone");
+  }
+  else {
+    alerts += `<div class="alert good">✅ Air quality is normal</div>`;
+  }
 
-if ((d.LPG ?? 0) > 1000) {
-alerts += `<div class="alert bad">⚠ High LPG detected</div>`;
-notify("Warning: High LPG detected");
-}
+  if ((d.LPG ?? 0) > 1000) {
+    alerts += `<div class="alert bad">⚠ High LPG detected</div>`;
+    notify("Warning: High LPG detected");
+  }
 
-if ((d.Gases ?? 0) > 1000) {
-alerts += `<div class="alert bad">⚠ High gas level detected</div>`;
-notify("Warning: High gas level detected");
-}
+  if ((d.Gases ?? 0) > 500) {
+    alerts += `<div class="alert bad">⚠ Gas level high</div>`;
+    notify("Warning: Gas level high");
+  }
 
-if ((d.Pollutants ?? 0) > 500) {
-alerts += `<div class="alert bad">⚠ Pollutants level high</div>`;
-notify("Warning: Pollutants level high");
-}
+  if ((d.Pollutants ?? 0) > 1000) {
+    alerts += `<div class="alert bad">⚠ Pollutants level high</div>`;
+    notify("Warning: Pollutants level high");
+  }
 
-if ((d.Temperature ?? 0) > 28) {
-alerts += `<div class="alert warn">⚠ Temperature above threshold</div>`;
-notify("Warning: Temperature above threshold");
-}
+  if ((d.Temperature ?? 0) > 28) {
+    alerts += `<div class="alert warn">⚠ Temperature above threshold</div>`;
+    notify("Warning: Temperature above threshold");
+  }
 
-document.getElementById("alerts").innerHTML = alerts;
+  document.getElementById("alerts").innerHTML = alerts;
 
 }, (error) => {
-console.log("Firestore error:", error);
-document.getElementById("alerts").innerHTML =
-`<div class="alert bad">❌ Firestore connection error</div>`;
+  console.log("Firestore error:", error);
+  document.getElementById("alerts").innerHTML =
+  `<div class="alert bad">❌ Firestore connection error</div>`;
 });
 
 </script>
