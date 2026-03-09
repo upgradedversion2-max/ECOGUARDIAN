@@ -136,13 +136,13 @@ color:#ffd447;
 </div>
 
 <div class="card">
-<h3>Mist</h3>
-<div id="pump1" class="value">--</div>
+<h3>Pump</h3>
+<div id="Mist1" class="value">--</div>
 </div>
 
 <div class="card">
-<h3>Pump</h3>
-<div id="pump2" class="value">--</div>
+<h3>Mist</h3>
+<div id="Mist2" class="value">--</div>
 </div>
 
 <div class="card">
@@ -215,10 +215,10 @@ onSnapshot(ref, (snapshot) => {
   document.getElementById("buzzer").innerText = d.Buzzer ? "ON" : "OFF";
 
   // Interchanged display:
-  // Pump = gases high = Pump2
-  // Mist = pollutants high = Pump1
-  document.getElementById("pump1").innerText = d.Pump2 ? "ON" : "OFF";
-  document.getElementById("pump2").innerText = d.Pump1 ? "ON" : "OFF";
+  // Mist = gases high = Mist2
+  // Pump = pollutants high = Mist1
+  document.getElementById("Mist1").innerText = d.Mist2 ? "ON" : "OFF";
+  document.getElementById("Mist2").innerText = d.Mist1 ? "ON" : "OFF";
 
   document.getElementById("millis").innerText = d.Millis ?? "--";
 
