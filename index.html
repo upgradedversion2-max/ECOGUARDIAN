@@ -1,53 +1,269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ESP32 Air Monitoring Dashboard</title>
-  <link rel="stylesheet" href="index.css" />
+
+<title>EcoGuardian Dashboard</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+background:#0b1420;
+color:white;
+padding:40px;
+}
+
+/* Title */
+
+h1{
+margin-bottom:30px;
+}
+
+/* Grid Layout */
+
+.container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+/* Cards */
+
+.card{
+padding:25px;
+background:#111c2d;
+border-radius:12px;
+box-shadow:0 5px 20px rgba(0,0,0,0.5);
+text-align:center;
+}
+
+.card h3{
+color:#8fa6c9;
+margin-bottom:10px;
+}
+
+.value{
+font-size:30px;
+color:#4da3ff;
+font-weight:bold;
+}
+
+/* Alert Section */
+
+.alert-box{
+margin-top:40px;
+background:#111c2d;
+padding:20px;
+border-radius:10px;
+}
+
+.alert{
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+}
+
+.good{
+background:#163b2c;
+color:#32ffb4;
+}
+
+.bad{
+background:#3b1a1a;
+color:#ff5c5c;
+}
+
+.warn{
+background:#3b3316;
+color:#ffd447;
+}
+
+</style>
+
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <h1>ESP32 Air Monitoring Dashboard</h1>
-      <p>Live data from Firebase Realtime Database</p>
-    </header>
 
-    <section class="status-grid">
-      <div class="card">
-        <h2>Temperature</h2>
-        <p id="temperature">-- °C</p>
-      </div>
-      <div class="card">
-        <h2>Humidity</h2>
-        <p id="humidity">-- %</p>
-      </div>
-      <div class="card">
-        <h2>MQ2</h2>
-        <p id="mq2">--</p>
-      </div>
-      <div class="card">
-        <h2>MQ6</h2>
-        <p id="mq6">--</p>
-      </div>
-      <div class="card">
-        <h2>MQ135</h2>
-        <p id="mq135">--</p>
-      </div>
-      <div class="card">
-        <h2>Zone</h2>
-        <p id="zone">--</p>
-      </div>
-    </section>
+<h1>🌫 EcoGuardian Air Monitor</h1>
 
-    <section class="card wide">
-      <h2>System Summary</h2>
-      <div id="summary">
-        Waiting for live data...
-      </div>
-    </section>
-  </div>
+<div class="container">
 
-  <script type="module" src="app.js"></script>
+<div class="card">
+<h3>Zone</h3>
+<div id="zone" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Temperature</h3>
+<div id="temp" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Humidity</h3>
+<div id="humidity" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Gases</h3>
+<div id="gases" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>LPG</h3>
+<div id="lpg" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Pollutants</h3>
+<div id="pollutants" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Fan</h3>
+<div id="fan" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Buzzer</h3>
+<div id="buzzer" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Pump 1</h3>
+<div id="pump1" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Pump 2</h3>
+<div id="pump2" class="value">--</div>
+</div>
+
+<div class="card">
+<h3>Millis</h3>
+<div id="millis" class="value">--</div>
+</div>
+
+</div>
+
+
+<div class="alert-box">
+
+<h2>🚨 Real Time Alerts</h2>
+
+<div id="alerts"></div>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCJoYTRhnfxTybH29dMcJ2jUom0zai1MQI",
+  authDomain: "air-pollution-monitoring-32442.firebaseapp.com",
+  projectId: "air-pollution-monitoring-32442",
+  storageBucket: "air-pollution-monitoring-32442.firebasestorage.app",
+  messagingSenderId: "32538469816",
+  appId: "1:32538469816:web:8de41f01a6ab64b6dadb4d",
+  measurementId: "G-PPTS9L9KNG"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// EXACT SAME PATH as ESP32 code
+const ref = doc(db, "AIR POLLUTION", "ECOGUARDIAN");
+
+
+if (Notification.permission !== "granted") {
+Notification.requestPermission();
+}
+
+function notify(msg){
+if(Notification.permission === "granted"){
+new Notification(msg);
+}
+}
+
+onSnapshot(ref, (snapshot) => {
+
+if (!snapshot.exists()) {
+console.log("Document not found");
+document.getElementById("alerts").innerHTML =
+`<div class="alert bad">❌ Firestore document not found</div>`;
+return;
+}
+
+let d = snapshot.data();
+console.log("Firestore Data:", d);
+
+// Show data
+document.getElementById("zone").innerText = d.Zone ?? "--";
+document.getElementById("temp").innerText = (d.Temperature ?? "--") + " °C";
+document.getElementById("humidity").innerText = (d.Humidity ?? "--") + " %";
+document.getElementById("gases").innerText = d.Gases ?? "--";
+document.getElementById("lpg").innerText = d.LPG ?? "--";
+document.getElementById("pollutants").innerText = d.Pollutants ?? "--";
+document.getElementById("fan").innerText = d.Fan ? "ON" : "OFF";
+document.getElementById("buzzer").innerText = d.Buzzer ? "ON" : "OFF";
+document.getElementById("pump1").innerText = d.Pump1 ? "ON" : "OFF";
+document.getElementById("pump2").innerText = d.Pump2 ? "ON" : "OFF";
+document.getElementById("millis").innerText = d.Millis ?? "--";
+
+// Alerts
+let alerts = "";
+
+if (d.Zone === "RED") {
+alerts += `<div class="alert bad">⚠ Air quality is in RED zone</div>`;
+notify("Warning: Air quality is in RED zone");
+}
+else if (d.Zone === "YELLOW") {
+alerts += `<div class="alert warn">⚠ Air quality is in YELLOW zone</div>`;
+notify("Warning: Air quality is in YELLOW zone");
+}
+else {
+alerts += `<div class="alert good">✅ Air quality is normal</div>`;
+}
+
+if ((d.LPG ?? 0) > 1000) {
+alerts += `<div class="alert bad">⚠ High LPG detected</div>`;
+notify("Warning: High LPG detected");
+}
+
+if ((d.Gases ?? 0) > 1000) {
+alerts += `<div class="alert bad">⚠ High gas level detected</div>`;
+notify("Warning: High gas level detected");
+}
+
+if ((d.Pollutants ?? 0) > 500) {
+alerts += `<div class="alert bad">⚠ Pollutants level high</div>`;
+notify("Warning: Pollutants level high");
+}
+
+if ((d.Temperature ?? 0) > 28) {
+alerts += `<div class="alert warn">⚠ Temperature above threshold</div>`;
+notify("Warning: Temperature above threshold");
+}
+
+document.getElementById("alerts").innerHTML = alerts;
+
+}, (error) => {
+console.log("Firestore error:", error);
+document.getElementById("alerts").innerHTML =
+`<div class="alert bad">❌ Firestore connection error</div>`;
+});
+
+</script>
+
 </body>
+
 </html>
