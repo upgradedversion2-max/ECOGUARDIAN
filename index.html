@@ -20,21 +20,15 @@ color:white;
 padding:40px;
 }
 
-/* Title */
-
 h1{
 margin-bottom:30px;
 }
-
-/* Grid Layout */
 
 .container{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 gap:20px;
 }
-
-/* Cards */
 
 .card{
 padding:25px;
@@ -54,8 +48,6 @@ font-size:30px;
 color:#4da3ff;
 font-weight:bold;
 }
-
-/* Alert Section */
 
 .alert-box{
 margin-top:40px;
@@ -136,13 +128,13 @@ color:#ffd447;
 </div>
 
 <div class="card">
-<h3>Pump</h3>
-<div id="Mist1" class="value">--</div>
+<h3>Mist</h3>
+<div id="mist" class="value">--</div>
 </div>
 
 <div class="card">
-<h3>Mist</h3>
-<div id="Mist2" class="value">--</div>
+<h3>Pump</h3>
+<div id="pump" class="value">--</div>
 </div>
 
 <div class="card">
@@ -173,8 +165,7 @@ const firebaseConfig = {
   projectId: "air-pollution-monitoring-32442",
   storageBucket: "air-pollution-monitoring-32442.firebasestorage.app",
   messagingSenderId: "32538469816",
-  appId: "1:32538469816:web:8de41f01a6ab64b6dadb4d",
-  measurementId: "G-PPTS9L9KNG"
+  appId: "1:32538469816:web:8de41f01a6ab64b6dadb4d"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -195,43 +186,36 @@ function notify(msg){
 onSnapshot(ref, (snapshot) => {
 
   if (!snapshot.exists()) {
-    console.log("Document not found");
     document.getElementById("alerts").innerHTML =
     `<div class="alert bad">❌ Firestore document not found</div>`;
     return;
   }
 
   let d = snapshot.data();
-  console.log("Firestore Data:", d);
 
-  // Show data
   document.getElementById("zone").innerText = d.Zone ?? "--";
   document.getElementById("temp").innerText = (d.Temperature ?? "--") + " °C";
   document.getElementById("humidity").innerText = (d.Humidity ?? "--") + " %";
   document.getElementById("gases").innerText = d.Gases ?? "--";
   document.getElementById("lpg").innerText = d.LPG ?? "--";
   document.getElementById("pollutants").innerText = d.Pollutants ?? "--";
+
   document.getElementById("fan").innerText = d.Fan ? "ON" : "OFF";
   document.getElementById("buzzer").innerText = d.Buzzer ? "ON" : "OFF";
 
-  // Interchanged display:
-  // Mist = gases high = Mist2
-  // Pump = pollutants high = Mist1
-  document.getElementById("Mist1").innerText = d.Mist2 ? "ON" : "OFF";
-  document.getElementById("Mist2").innerText = d.Mist1 ? "ON" : "OFF";
+  /* Correct mapping */
+  document.getElementById("mist").innerText = d.Pump1 ? "ON" : "OFF";
+  document.getElementById("pump").innerText = d.Pump2 ? "ON" : "OFF";
 
   document.getElementById("millis").innerText = d.Millis ?? "--";
 
-  // Alerts
   let alerts = "";
 
   if (d.Zone === "RED") {
     alerts += `<div class="alert bad">⚠ Air quality is in RED zone</div>`;
-    notify("Warning: Air quality is in RED zone");
   }
   else if (d.Zone === "YELLOW") {
     alerts += `<div class="alert warn">⚠ Air quality is in YELLOW zone</div>`;
-    notify("Warning: Air quality is in YELLOW zone");
   }
   else {
     alerts += `<div class="alert good">✅ Air quality is normal</div>`;
@@ -239,30 +223,22 @@ onSnapshot(ref, (snapshot) => {
 
   if ((d.LPG ?? 0) > 1000) {
     alerts += `<div class="alert bad">⚠ High LPG detected</div>`;
-    notify("Warning: High LPG detected");
   }
 
   if ((d.Gases ?? 0) > 500) {
     alerts += `<div class="alert bad">⚠ Gas level high</div>`;
-    notify("Warning: Gas level high");
   }
 
   if ((d.Pollutants ?? 0) > 1000) {
     alerts += `<div class="alert bad">⚠ Pollutants level high</div>`;
-    notify("Warning: Pollutants level high");
   }
 
   if ((d.Temperature ?? 0) > 28) {
     alerts += `<div class="alert warn">⚠ Temperature above threshold</div>`;
-    notify("Warning: Temperature above threshold");
   }
 
   document.getElementById("alerts").innerHTML = alerts;
 
-}, (error) => {
-  console.log("Firestore error:", error);
-  document.getElementById("alerts").innerHTML =
-  `<div class="alert bad">❌ Firestore connection error</div>`;
 });
 
 </script>
