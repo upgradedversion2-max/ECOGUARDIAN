@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 Air Monitoring Dashboard</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>ESP32 Air Monitoring Dashboard</h1>
+      <p>Live data from Firebase Realtime Database</p>
+    </header>
+
+    <section class="status-grid">
+      <div class="card">
+        <h2>Temperature</h2>
+        <p id="temperature">-- °C</p>
+      </div>
+      <div class="card">
+        <h2>Humidity</h2>
+        <p id="humidity">-- %</p>
+      </div>
+      <div class="card">
+        <h2>MQ2</h2>
+        <p id="mq2">--</p>
+      </div>
+      <div class="card">
+        <h2>MQ6</h2>
+        <p id="mq6">--</p>
+      </div>
+      <div class="card">
+        <h2>MQ135</h2>
+        <p id="mq135">--</p>
+      </div>
+      <div class="card">
+        <h2>Zone</h2>
+        <p id="zone">--</p>
+      </div>
+    </section>
+
+    <section class="card wide">
+      <h2>System Summary</h2>
+      <div id="summary">
+        Waiting for live data...
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
